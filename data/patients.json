@@ -1,0 +1,115 @@
+{
+  "888922581": {
+    "chatId": 888922581,
+    "telegram": {
+      "username": "S_K_B_26",
+      "firstName": "Barathvikraman",
+      "lastName": null
+    },
+    "patient": {
+      "name": "Radhu",
+      "condition": "General recovery",
+      "dayAfterDischarge": 1,
+      "meds": [],
+      "language": "en",
+      "carePlan": {
+        "active": true,
+        "startDate": "2026-03-27T10:40:17.568Z",
+        "totalDays": 7,
+        "checkinTime": "09:00"
+      },
+      "billing": {
+        "upiId": "jeevancare.hospital@upi",
+        "bank": {
+          "accountName": "JeevanCare Hospital Pvt Ltd",
+          "accountNumber": "123456789012",
+          "ifsc": "JCBK0001234",
+          "bankName": "JeevanCare Bank"
+        },
+        "bills": [
+          {
+            "id": "INV-1001",
+            "title": "Room Charges",
+            "amount": 4200,
+            "status": "unpaid",
+            "date": "2026-03-26"
+          },
+          {
+            "id": "INV-1002",
+            "title": "Lab Tests",
+            "amount": 1850,
+            "status": "unpaid",
+            "date": "2026-03-26"
+          },
+          {
+            "id": "INV-1003",
+            "title": "Pharmacy",
+            "amount": 1325,
+            "status": "unpaid",
+            "date": "2026-03-27"
+          }
+        ],
+        "payments": []
+      }
+    },
+    "updatedAt": "2026-03-27T10:59:39.014Z",
+    "createdAt": "2026-03-27T10:19:43.179Z"
+  },
+  "1119202637": {
+    "chatId": 1119202637,
+    "telegram": {
+      "username": "brittytino",
+      "firstName": "Tino Britty",
+      "lastName": null
+    },
+    "patient": {
+      "name": "Tino Britty",
+      "condition": "General recovery",
+      "dayAfterDischarge": 1,
+      "meds": [],
+      "language": "en",
+      "carePlan": {
+        "description": "General recovery care plan",
+        "active": false,
+        "startDate": null,
+        "totalDays": 7,
+        "checkinTime": "09:00"
+      },
+      "billing": {
+        "upiId": "jeevancare.hospital@upi",
+        "bank": {
+          "accountName": "JeevanCare Hospital Pvt Ltd",
+          "accountNumber": "123456789012",
+          "ifsc": "JCBK0001234",
+          "bankName": "JeevanCare Bank"
+        },
+        "bills": [
+          {
+            "id": "INV-1001",
+            "title": "Room Charges",
+            "amount": 4200,
+            "status": "unpaid",
+            "date": "2026-03-26"
+          },
+          {
+            "id": "INV-1002",
+            "title": "Lab Tests",
+            "amount": 1850,
+            "status": "unpaid",
+            "date": "2026-03-26"
+          },
+          {
+            "id": "INV-1003",
+            "title": "Pharmacy",
+            "amount": 1325,
+            "status": "unpaid",
+            "date": "2026-03-27"
+          }
+        ],
+        "payments": []
+      }
+    },
+    "updatedAt": "2026-03-27T10:55:28.587Z",
+    "createdAt": "2026-03-27T09:26:17.369Z"
+  }
+}
