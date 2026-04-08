@@ -131,10 +131,15 @@ adb install -r artifacts/iRetardgram_patched_<instagram_apk_name>_stories_enable
 
 The repository includes GitHub Actions release automation in `.github/workflows/release.yml`.
 
-When you push a tag that starts with `v`, the workflow publishes a GitHub Release and uploads:
+When you push a tag that starts with `v`, the workflow publishes a GitHub Release.
 
-- `apk/instagram.apk`
-- `apk/instagram.apk.sha256`
+For large APK files, upload the APK as a Release asset (do not commit APK binaries to git history).
+
+Example:
+
+```bash
+gh release upload v1.0.1 apk/instagram.apk --clobber
+```
 
 ## File Structure
 

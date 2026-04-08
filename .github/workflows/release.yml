@@ -17,18 +17,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate APK input
+      - name: Prepare optional release assets
         run: |
-          test -f apk/instagram.apk
+          mkdir -p release_assets
 
-      - name: Generate checksum
-        run: |
-          sha256sum apk/instagram.apk > apk/instagram.apk.sha256
+          if compgen -G "apk/*.apk" > /dev/null; then
+            cp apk/*.apk release_assets/
+          fi
+
+          if [ -f release_assets/instagram.apk ]; then
+            sha256sum release_assets/instagram.apk > release_assets/instagram.apk.sha256
+          fi
+
+          ls -la release_assets || true
 
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
+          fail_on_unmatched_files: false
           files: |
-            apk/instagram.apk
-            apk/instagram.apk.sha256
+            release_assets/*
