@@ -1,11 +1,11 @@
-.class public Lcom/feurstagram/FeurHooks;
+﻿.class public Lcom/iRetardgram/IRetardHooks;
 .super Ljava/lang/Object;
 
-# Feurstagram Network Hooks
+# iRetardgram Network Hooks
 # Intercepts network requests and blocks unwanted content
 #
 # Blocked endpoints (path unless noted):
-#   - /feed/timeline/ (home feed posts — Stories load from /feed/reels_tray/ separately)
+#   - /feed/timeline/ (home feed posts - Stories load from /feed/reels_tray/ separately)
 #   - /discover/topical_explore (explore content)
 #   - /clips/discover (reels discovery)
 #   - /logging/ (client event logging)
@@ -27,10 +27,10 @@
 .end method
 
 
-# Log a message with tag "Feurstagram" (visible via: adb logcat -s "Feurstagram:D")
+# Log a message with tag "iRetardgram" (visible via: adb logcat -s "iRetardgram:D")
 .method public static log(Ljava/lang/String;)V
     .locals 1
-    const-string v0, "Feurstagram"
+    const-string v0, "iRetardgram"
     invoke-static {v0, p0}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
     return-void
 .end method
@@ -55,7 +55,7 @@
     invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
     move-result-object v0
     
-    invoke-static {v0}, Lcom/feurstagram/FeurHooks;->log(Ljava/lang/String;)V
+    invoke-static {v0}, Lcom/iRetardgram/IRetardHooks;->log(Ljava/lang/String;)V
     
     :cond_return
     return-void
@@ -94,7 +94,7 @@
     .locals 4
 
     # Log the request (comment out for production)
-    invoke-static {p0}, Lcom/feurstagram/FeurHooks;->logRequest(Ljava/net/URI;)V
+    invoke-static {p0}, Lcom/iRetardgram/IRetardHooks;->logRequest(Ljava/net/URI;)V
 
     invoke-virtual {p0}, Ljava/net/URI;->getPath()Ljava/lang/String;
     move-result-object v0
@@ -144,7 +144,7 @@
     if-nez v2, :cond_block
 
     # Post "seen" tracking
-    invoke-static {v0}, Lcom/feurstagram/FeurHooks;->shouldBlockMediaSeen(Ljava/lang/String;)Z
+    invoke-static {v0}, Lcom/iRetardgram/IRetardHooks;->shouldBlockMediaSeen(Ljava/lang/String;)Z
     move-result v2
     if-nez v2, :cond_block
 
@@ -183,11 +183,12 @@
     # Block by throwing IOException
     :cond_block
     const-string v1, "BLOCKED!"
-    invoke-static {v1}, Lcom/feurstagram/FeurHooks;->log(Ljava/lang/String;)V
+    invoke-static {v1}, Lcom/iRetardgram/IRetardHooks;->log(Ljava/lang/String;)V
     
     new-instance v3, Ljava/io/IOException;
-    const-string v1, "Blocked by Feurstagram"
+    const-string v1, "Blocked by iRetardgram"
     invoke-direct {v3, v1}, Ljava/io/IOException;-><init>(Ljava/lang/String;)V
     throw v3
 
 .end method
+

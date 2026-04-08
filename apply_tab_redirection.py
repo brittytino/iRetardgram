@@ -1,4 +1,4 @@
-import sys
+﻿import sys
 import os
 
 def patch_smali(file_path):
@@ -16,7 +16,7 @@ def patch_smali(file_path):
     # In smali:
     # if-eqz v0, :not_reels  # if v0 is zero (NOT equals), skip to :not_reels
     patch = '''
-    # Feurstagram: Redirect Reels to DMs
+    # iRetardgram: Redirect Reels to DMs
     const-string/jumbo v0, "fragment_clips"
     invoke-virtual {v7, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
     move-result v0
@@ -26,7 +26,7 @@ def patch_smali(file_path):
 '''
     
     # We need to make sure we dont double patch if we run multiple times
-    if '# Feurstagram' in content:
+    if '# iRetardgram' in content:
         print(f"Already patched {file_path}")
         return
 
@@ -40,3 +40,4 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         sys.exit(1)
     patch_smali(sys.argv[1])
+

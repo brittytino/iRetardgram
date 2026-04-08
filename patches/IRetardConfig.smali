@@ -1,7 +1,7 @@
-.class public Lcom/feurstagram/FeurConfig;
+﻿.class public Lcom/iRetardgram/IRetardConfig;
 .super Ljava/lang/Object;
 
-# FeurStagram Configuration
+# iRetardgram Configuration
 # Hardcoded settings for distraction-free mode
 # 
 # Disables: Feed content, Explore content, Reels content

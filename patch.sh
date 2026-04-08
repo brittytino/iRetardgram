@@ -1,6 +1,6 @@
-#!/bin/bash
+﻿#!/bin/bash
 
-# FeurStagram Patcher
+# iRetardgram Patcher
 # Patches an Instagram APK to create a distraction-free version
 #
 # Usage: ./patch.sh <instagram.apk>
@@ -22,10 +22,10 @@ NC='\033[0m' # No Color
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PATCHES_DIR="$SCRIPT_DIR/patches"
-KEYSTORE="${FEURSTAGRAM_KEYSTORE:-$SCRIPT_DIR/feurstagram.keystore}"
-KEYSTORE_PASS="${FEURSTAGRAM_KEYSTORE_PASS:-}"
-KEY_ALIAS="${FEURSTAGRAM_KEY_ALIAS:-feurstagram}"
-KEY_PASS="${FEURSTAGRAM_KEY_PASS:-$KEYSTORE_PASS}"
+KEYSTORE="${IRETARDGRAM_KEYSTORE:-$SCRIPT_DIR/iRetardgram.keystore}"
+KEYSTORE_PASS="${IRETARDGRAM_KEYSTORE_PASS:-}"
+KEY_ALIAS="${IRETARDGRAM_KEY_ALIAS:-iRetardgram}"
+KEY_PASS="${IRETARDGRAM_KEY_PASS:-$KEYSTORE_PASS}"
 BLOCK_STORIES=false
 
 # Find Android build-tools
@@ -89,17 +89,17 @@ check_dependencies() {
 
     if [ ! -f "$KEYSTORE" ]; then
         echo -e "${RED}Error: keystore not found at: $KEYSTORE${NC}"
-        echo "  Set FEURSTAGRAM_KEYSTORE to your local keystore path."
+        echo "  Set IRETARDGRAM_KEYSTORE to your local keystore path."
         exit 1
     fi
 
     if [ -z "$KEYSTORE_PASS" ]; then
-        echo -e "${RED}Error: FEURSTAGRAM_KEYSTORE_PASS is not set.${NC}"
-        echo "  Example: FEURSTAGRAM_KEYSTORE_PASS=your_password ./patch.sh instagram.apk"
+        echo -e "${RED}Error: IRETARDGRAM_KEYSTORE_PASS is not set.${NC}"
+        echo "  Example: IRETARDGRAM_KEYSTORE_PASS=your_password ./patch.sh instagram.apk"
         exit 1
     fi
     
-    echo -e "${GREEN}✓ All dependencies found${NC}"
+    echo -e "${GREEN}[OK] All dependencies found${NC}"
     echo "  apktool: $(which apktool)"
     echo "  build-tools: $BUILD_TOOLS"
 }
@@ -115,7 +115,7 @@ patch_apk() {
     if [ "$BLOCK_STORIES" = true ]; then
         VARIANT_SUFFIX="stories_blocked"
     fi
-    local OUTPUT_APK="$OUTPUT_DIR/feurstagram_patched_${INPUT_BASENAME}_${VARIANT_SUFFIX}.apk"
+    local OUTPUT_APK="$OUTPUT_DIR/iRetardgram_patched_${INPUT_BASENAME}_${VARIANT_SUFFIX}.apk"
     mkdir -p "$OUTPUT_DIR"
     
     # Step 1: Decompile
@@ -145,25 +145,35 @@ if last_error is not None:
 PY
     fi
     apktool d --no-res "$INPUT_APK" -o "$WORK_DIR"
-    echo -e "${GREEN}✓ Decompiled${NC}"
+    echo -e "${GREEN}[OK] Decompiled${NC}"
     
-    # Step 2: Copy FeurStagram helper classes
-    echo -e "\n${YELLOW}[2/6] Adding FeurStagram classes...${NC}"
-    mkdir -p "$WORK_DIR/smali_classes17/com/feurstagram"
-    cp "$PATCHES_DIR/FeurConfig.smali" "$WORK_DIR/smali_classes17/com/feurstagram/"
-    cp "$PATCHES_DIR/FeurHooks.smali" "$WORK_DIR/smali_classes17/com/feurstagram/"
+    # Step 2: Copy iRetardgram helper classes
+    echo -e "\n${YELLOW}[2/6] Adding iRetardgram classes...${NC}"
+    mkdir -p "$WORK_DIR/smali_classes17/com/iRetardgram"
+    cp "$PATCHES_DIR/IRetardConfig.smali" "$WORK_DIR/smali_classes17/com/iRetardgram/"
+    cp "$PATCHES_DIR/IRetardHooks.smali" "$WORK_DIR/smali_classes17/com/iRetardgram/"
 
     if [ "$BLOCK_STORIES" = true ]; then
-        local HOOKS_FILE="$WORK_DIR/smali_classes17/com/feurstagram/FeurHooks.smali"
-        sed -i '' 's|^    #const-string v1, "/feed/reels_tray"|    const-string v1, "/feed/reels_tray"|' "$HOOKS_FILE"
-        sed -i '' 's|^    #invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z|    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z|' "$HOOKS_FILE"
-        sed -i '' 's|^    #move-result v2|    move-result v2|' "$HOOKS_FILE"
-        sed -i '' 's|^    #if-nez v2, :cond_block|    if-nez v2, :cond_block|' "$HOOKS_FILE"
-        echo -e "${GREEN}✓ Stories blocking enabled${NC}"
+        local HOOKS_FILE="$WORK_DIR/smali_classes17/com/iRetardgram/IRetardHooks.smali"
+        python3 - "$HOOKS_FILE" <<'PY'
+import pathlib
+import sys
+
+hooks_file = pathlib.Path(sys.argv[1])
+content = hooks_file.read_text(encoding='utf-8')
+
+content = content.replace('    #const-string v1, "/feed/reels_tray"', '    const-string v1, "/feed/reels_tray"')
+content = content.replace('    #invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z', '    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z')
+content = content.replace('    #move-result v2', '    move-result v2')
+content = content.replace('    #if-nez v2, :cond_block', '    if-nez v2, :cond_block')
+
+hooks_file.write_text(content, encoding='utf-8')
+PY
+        echo -e "${GREEN}[OK] Stories blocking enabled${NC}"
     else
-        echo -e "${GREEN}✓ Stories blocking disabled (stories remain visible)${NC}"
+        echo -e "${GREEN}[OK] Stories blocking disabled (stories remain visible)${NC}"
     fi
-    echo -e "${GREEN}✓ Added FeurConfig.smali and FeurHooks.smali${NC}"
+    echo -e "${GREEN}[OK] Added IRetardConfig.smali and IRetardHooks.smali${NC}"
     
     # Step 3: Patch network layer...
     echo -e "\n${YELLOW}[3/6] Patching network layer...${NC}"
@@ -174,27 +184,27 @@ PY
     fi
     
     python3 "$SCRIPT_DIR/apply_network_patch.py" "$TIGON_FILE"
-    echo -e "${GREEN}✓ Network hook patch applied${NC}"
+    echo -e "${GREEN}[OK] Network hook patch applied${NC}"
 
     # Step 4: Patch tab redirection
     echo -e "\n${YELLOW}[4/6] Patching tab redirection (Global)...${NC}"
     python3 "$SCRIPT_DIR/global_redirect.py" "$WORK_DIR"
-    echo -e "${GREEN}✓ Global tab redirection applied${NC}"
+    echo -e "${GREEN}[OK] Global tab redirection applied${NC}"
     
     # Step 5: Build APK
     echo -e "\n${YELLOW}[5/6] Building APK...${NC}"
-    apktool b "$WORK_DIR" -o "$SCRIPT_DIR/feurstagram_unsigned.apk"
-    echo -e "${GREEN}✓ APK built${NC}"
+    apktool b "$WORK_DIR" -o "$SCRIPT_DIR/iRetardgram_unsigned.apk"
+    echo -e "${GREEN}[OK] APK built${NC}"
     
     # Step 6: Sign APK
     echo -e "\n${YELLOW}[6/6] Signing APK...${NC}"
-    "$ZIPALIGN" -f 4 "$SCRIPT_DIR/feurstagram_unsigned.apk" "$SCRIPT_DIR/feurstagram_aligned.apk"
-    "$APKSIGNER" sign --ks "$KEYSTORE" --ks-key-alias "$KEY_ALIAS" --ks-pass "pass:$KEYSTORE_PASS" --key-pass "pass:$KEY_PASS" --out "$OUTPUT_APK" "$SCRIPT_DIR/feurstagram_aligned.apk"
+    "$ZIPALIGN" -f 4 "$SCRIPT_DIR/iRetardgram_unsigned.apk" "$SCRIPT_DIR/iRetardgram_aligned.apk"
+    "$APKSIGNER" sign --ks "$KEYSTORE" --ks-key-alias "$KEY_ALIAS" --ks-pass "pass:$KEYSTORE_PASS" --key-pass "pass:$KEY_PASS" --out "$OUTPUT_APK" "$SCRIPT_DIR/iRetardgram_aligned.apk"
     
     # Cleanup intermediate files
-    rm -f "$SCRIPT_DIR/feurstagram_unsigned.apk" "$SCRIPT_DIR/feurstagram_aligned.apk"
+    rm -f "$SCRIPT_DIR/iRetardgram_unsigned.apk" "$SCRIPT_DIR/iRetardgram_aligned.apk"
     
-    echo -e "${GREEN}✓ APK signed${NC}"
+    echo -e "${GREEN}[OK] APK signed${NC}"
     
     echo -e "\n${GREEN}========================================${NC}"
     echo -e "${GREEN}SUCCESS! Patched APK: $OUTPUT_APK${NC}"
@@ -207,13 +217,13 @@ PY
 usage() {
     echo "Usage: $0 [--block-stories] <instagram.apk>"
     echo ""
-    echo "Patches an Instagram APK to create Feurstagram (Distraction-Free Instagram)"
+    echo "Patches an Instagram APK to create iRetardgram (Distraction-Free Instagram)"
     echo ""
     echo "Signing environment variables:"
-    echo "  FEURSTAGRAM_KEYSTORE       Path to keystore (default: ./feurstagram.keystore)"
-    echo "  FEURSTAGRAM_KEYSTORE_PASS  Keystore password (required)"
-    echo "  FEURSTAGRAM_KEY_ALIAS      Key alias (default: feurstagram)"
-    echo "  FEURSTAGRAM_KEY_PASS       Key password (default: same as keystore password)"
+    echo "  IRETARDGRAM_KEYSTORE       Path to keystore (default: ./iRetardgram.keystore)"
+    echo "  IRETARDGRAM_KEYSTORE_PASS  Keystore password (required)"
+    echo "  IRETARDGRAM_KEY_ALIAS      Key alias (default: iRetardgram)"
+    echo "  IRETARDGRAM_KEY_PASS       Key password (default: same as keystore password)"
     echo ""
     echo "Features disabled (via network blocking):"
     echo "  - Feed posts (Stories remain visible)"
@@ -265,3 +275,6 @@ fi
 
 check_dependencies
 patch_apk "$INPUT_APK"
+
+
+

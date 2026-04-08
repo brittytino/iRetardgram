@@ -1,8 +1,8 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 Apply network blocking patch to TigonServiceLayer.
 
-This script patches Instagram's network layer to call our FeurHooks.throwIfBlocked()
+This script patches Instagram's network layer to call our IRetardHooks.throwIfBlocked()
 method before each request, allowing us to block unwanted content.
 """
 
@@ -14,7 +14,7 @@ def patch_tigon_service_layer(filepath):
         content = f.read()
     
     # Check if already patched
-    if 'FeurHooks' in content:
+    if 'IRetardHooks' in content:
         print(f"  Already patched: {filepath}")
         return True
     
@@ -45,8 +45,8 @@ def patch_tigon_service_layer(filepath):
             
             # Create the hook call
             hook_code = f'''
-    # Feurstagram: Check if this request should be blocked
-    invoke-static {{{uri_reg}}}, Lcom/feurstagram/FeurHooks;->throwIfBlocked(Ljava/net/URI;)V
+    # iRetardgram: Check if this request should be blocked
+    invoke-static {{{uri_reg}}}, Lcom/iRetardgram/IRetardHooks;->throwIfBlocked(Ljava/net/URI;)V
 
 '''
             # Insert the hook after the URI load
@@ -67,8 +67,8 @@ def patch_tigon_service_layer(filepath):
         uri_reg = match.group(2)
         
         hook_code = f'''
-    # Feurstagram: Check if this request should be blocked
-    invoke-static {{{uri_reg}}}, Lcom/feurstagram/FeurHooks;->throwIfBlocked(Ljava/net/URI;)V
+    # iRetardgram: Check if this request should be blocked
+    invoke-static {{{uri_reg}}}, Lcom/iRetardgram/IRetardHooks;->throwIfBlocked(Ljava/net/URI;)V
 
 '''
         patched_content = content.replace(uri_line, uri_line + hook_code, 1)
@@ -88,3 +88,4 @@ if __name__ == '__main__':
     
     if not patch_tigon_service_layer(sys.argv[1]):
         sys.exit(1)
+
