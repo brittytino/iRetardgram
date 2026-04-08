@@ -38,7 +38,7 @@ jobs:
 
       - name: Reject mojibake artifacts
         run: |
-          if grep -R --line-number --exclude=ci.yml "â" .; then
+          if grep -R --line-number --exclude=ci.yml $'\xC3\xA2' .; then
             echo "Found broken encoding artifacts."
             exit 1
           fi
