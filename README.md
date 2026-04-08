@@ -1,135 +1,208 @@
-# Post-Discharge Companion Telegram Bot
+<p align="center">
+  <img src="docs/app_icon.png" alt="FeurStagram Icon" width="128">
+</p>
 
-A multilingual post-discharge medical assistant for Indian patients (English, Tamil, Hindi), powered by Telegram + OpenRouter.
+<h1 align="center">FeurStagram</h1>
+<p align="center">Distraction-Free Instagram</p>
 
-## Features
+<p align="center">
+  <a href="https://github.com/jean-voila/FeurStagram/releases/latest">
+    <img src="https://img.shields.io/github/v/release/jean-voila/FeurStagram?style=for-the-badge&label=Download%20APK&color=10a37f" alt="Download APK">
+  </a>
+  <a href="https://discord.gg/Z9QvMw8s76">
+    <img src="https://img.shields.io/badge/Discord-Join%20Server-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join Discord">
+  </a>
+</p>
 
-- Safe, calm post-discharge guidance
-- Multilingual responses (English/Tamil/Hindi)
-- Structured patient context passed to model
-- Simple patient memory in bot runtime
-- Medication reminder scheduling with cron
-- Useful commands for demo and real use
+<p align="center">
+  <img src="https://komarev.com/ghpvc/?username=jean-voila-feurstagram&label=Views&color=gray&style=flat" alt="Views">
+</p>
 
-## Setup
+---
 
-1. Install dependencies:
+
+<p align="center">
+  <img src="docs/screen_1.png" alt="FeurStagram screenshot 1" width="240" />
+  <img src="docs/screen_2.png" alt="FeurStagram screenshot 2" width="240" />
+  <img src="docs/screen_3.png" alt="FeurStagram screenshot 3" width="240" />
+</p>
+
+An open source Instagram app for Android without distractions.
+
+I built this project for myself as an alternative to [DFInstagram](https://www.distractionfreeapps.com/) which hasn't been maintained for a long time and was difficult to update. I'm sharing it so others can do the same for themselves.
+
+**This project is entirely free and open-source.** Feel free to fork, copy, enhance, or submit pull requests - do whatever you want with it!
+
+## Community
+
+Join the Discord server to get support, follow updates, and discuss development:
+
+- https://discord.gg/Z9QvMw8s76
+
+## Installation
+
+You have two options:
+
+1. **Ready-to-install APK** - Grab the latest patched APK from the [Releases](../../releases) page and install it directly
+2. **DIY Patching** - Use the toolkit below to patch any Instagram version yourself
+
+## What Gets Disabled
+
+| Feature | Status | How |
+|---------|--------|-----|
+| **Feed Posts** | ❌ Blocked | Network-level blocking |
+| **Explore Content** | ❌ Blocked | Network-level blocking |
+| **Reels Content** | ❌ Redirected | Redirects to DMs |
+| **Analytics & telemetry** | ❌ Blocked | See [Blocked network paths](#blocked-network-paths) |
+| **Shopping / commerce preloads** | ❌ Blocked | See [Blocked network paths](#blocked-network-paths) |
+
+## What Still Works
+
+| Feature | Status |
+|---------|--------|
+| **Stories** | ✅ Works |
+| **Direct Messages** | ✅ Works |
+| **Profile** | ✅ Works |
+| **Reels in DMs** | ✅ Works |
+| **Search** | ✅ Works |
+| **Notifications** | ✅ Works |
+
+
+## Requirements
+
+### Linux
+```bash
+sudo apt install apktool android-sdk-build-tools openjdk-17-jdk python3
+```
+
+### macOS
+```bash
+brew install apktool android-commandlinetools openjdk python3
+ sdkmanager "build-tools;34.0.0"
+```
+
+## Quick Start
+
+1. **Download an Instagram APK** from [APKMirror](https://www.apkmirror.com/apk/instagram/instagram-instagram/) (arm64-v8a recommended)
+
+2. **Run the patcher:**
+   ```bash
+   ./patch.sh instagram.apk
+   ```
+
+  To also block stories:
+  ```bash
+  ./patch.sh --block-stories instagram.apk
+  ```
+
+3. **Install the patched APK:**
+   ```bash
+   adb install -r artifacts/feurstagram_patched_<instagram_apk_name>_stories_enabled.apk
+   ```
+
+4. **Cleanup build artifacts:**
+   ```bash
+   ./cleanup.sh
+   ```
+
+## File Structure
+
+```
+Feurstagram/
+├── patch.sh                 # Main patching script
+├── cleanup.sh               # Removes build artifacts
+├── apply_network_patch.py   # Network hook patch logic
+├── artifacts/               # Patched APK output directory
+└── patches/
+    ├── FeurConfig.smali     # Configuration class
+    └── FeurHooks.smali      # Network blocking hooks
+```
+
+## Keystore
+
+The patched APK needs to be signed before installation. The patcher uses a keystore file for signing.
+
+### Generating a Keystore
+
+Create a local keystore (do not commit it), then run `patch.sh` with env vars:
 
 ```bash
-npm install
+FEURSTAGRAM_KEYSTORE=./feurstagram.keystore \
+FEURSTAGRAM_KEYSTORE_PASS=your_store_password \
+FEURSTAGRAM_KEY_ALIAS=feurstagram \
+./patch.sh instagram.apk
 ```
 
-2. Configure environment variables in `.env`:
-
-```env
-TELEGRAM_TOKEN=your_telegram_bot_token_here
-OPENROUTER_API_KEY=your_openrouter_api_key_here
-OPENROUTER_MODELS=stepfun/step-3.5-flash:free,nvidia/nemotron-3-super-120b-a12b:free,arcee-ai/trinity-large-preview:free,z-ai/glm-4.5-air:free,nvidia/nemotron-3-nano-30b-a3b:free,arcee-ai/trinity-mini:free,nvidia/nemotron-nano-12b-v2-vl:free,qwen/qwen3-coder:free,openai/gpt-oss-120b:free,meta-llama/llama-3.3-70b-instruct:free
-OPENROUTER_MODEL_TIMEOUT_MS=7000
-OPENROUTER_MAX_TOKENS=280
-```
-
-3. Start bot:
+If `feurstagram.keystore` doesn't exist yet, create one:
 
 ```bash
-npm start
+keytool -genkey -v -keystore feurstagram.keystore -alias feurstagram \
+  -keyalg RSA -keysize 2048 -validity 10000 \
+  -storepass android -keypass android \
+  -dname "CN=Feurstagram, OU=Feurstagram, O=Feurstagram, L=Unknown, ST=Unknown, C=XX"
 ```
 
-## Telegram Commands
+### Keystore Details
 
-- `/start` - Welcome + command help
-- `/bills` - Show dummy discharge bills and total due
-- `/payupi <billId>` - Demo UPI payment for a bill
-- `/paybank <billId>` - Demo bank transfer payment for a bill
-- `/paystatus` - Show recent payment status
-- `/startcare` - Start 7-day discharge follow-up with daily check-ins
-- `/stopcare` - Stop the 7-day discharge follow-up
-- `/setcheckin <HH:MM>` - Set daily check-in time in IST
-- `/help` - Show command help
-- `/setname <name>` - Store patient name
-- `/setcondition <condition>` - Store medical condition
-- `/setday <number>` - Store day after discharge
-- `/setmeds <Med1|HH:MM,HH:MM;Med2|HH:MM>` - Save meds and start reminders
-- `/profile` - Show stored profile and meds
-- `/record` - Show persistent patient record saved on disk
+| Property | Value |
+|----------|-------|
+| Filename | `feurstagram.keystore` |
+| Alias | `feurstagram` |
+| Algorithm | RSA 2048-bit |
+| Validity | 10,000 days |
 
-Notes:
-- `/start` does not auto-show bills; it gives a clean guided flow.
-- Use `/bills` when you want to see bill details.
-- If command arguments are missing (for example `/payupi`), bot shows usage help.
+> **Note:** If you reinstall the app, you must use the same keystore to preserve your data. Signing with a different keystore requires uninstalling the previous version first.
 
-## User Prompt Format Sent to OpenRouter
+## Debugging
 
-The bot sends each user message in this structure:
-
-```text
-Patient Info:
-Name: {name}
-Condition: {condition}
-Day After Discharge: {day}
-Preferred Language: {detected_lang}
-Medication Schedule: {meds}
-
-User Message:
-{user_message}
+View logs to see what's being blocked:
+```bash
+adb logcat -s "Feurstagram:D"
 ```
 
-## Reminder Notes
+## How It Works
 
-- Reminders use `node-cron`.
-- Time format is 24-hour (`HH:MM`).
-- Timezone used: `Asia/Kolkata`.
-- Medication reminders and 7-day symptom check-ins run independently.
-- OpenRouter speed tuning: lower timeout values and lower max tokens reduce latency.
+### Tab Redirect
+Intercepts fragment loading in the main tab host. When Instagram tries to load `fragment_clips` (Reels), it redirects to `fragment_direct_tab` (DMs).
 
-## Patient Record (Persistent)
+### Network Blocking
+Hooks into `TigonServiceLayer` (a named, non-obfuscated class). Before each request, `FeurHooks.throwIfBlocked()` runs on the request URI; blocked calls fail with an `IOException` so the stack unwinds cleanly (same pattern as the original feed/explore blocks).
 
-- Patient records are saved in `data/patients.json`.
-- This includes name, condition, day, meds, Telegram metadata, and last update time.
-- Use `/record` in Telegram to show the current saved record.
+#### Blocked network paths
 
-## Demo Script
+| Path / pattern | Purpose |
+|----------------|---------|
+| `/feed/timeline/` | Home feed posts |
+| `/discover/topical_explore` | Explore tab content |
+| `/clips/discover` | Reels discovery feed |
+| `/logging/` | Client event logging |
+| `/async_ads_privacy/` | Ad-related tracking |
+| `/async_critical_notices/` | Engagement nudge analytics |
+| `/api/v1/media/.../seen/` (path contains `/api/v1/media/` and `/seen`) | Post “seen” tracking |
+| `/api/v1/fbupload/` | Telemetry upload |
+| `/api/v1/stats/` | Performance / usage stats |
+| `/api/v1/commerce/`, `/api/v1/shopping/`, `/api/v1/sellable_items/` | Shopping / commerce preloads |
 
-1. Patient runs `/start`
-2. Set profile with `/setname Ravi`, `/setcondition Post-op recovery`, `/setday 2`
-3. Set medicines with `/setmeds Paracetamol|08:00,20:00`
-4. Ask a symptom question in English/Tamil/Hindi
-5. Bot replies in same language with safe, step-by-step advice
+Matching uses `String.contains()` on the URI path. Instagram changes URL shapes over time; adjust `patches/FeurHooks.smali` if a block stops matching.
 
-## BotFather Setup Text
+## Updating for New Instagram Versions
 
-Use these in Telegram BotFather.
+I'll update this project to support new Instagram versions as they are released. When a new version comes out, I'll apply the necessary patches and release an updated APK.
 
-### Short Description
+1. TigonServiceLayer is a named class (doesn't change).
 
-```text
-7-day multilingual discharge companion with reminders and safety escalation.
-```
+2. Apply the same patches.
 
-### Description
 
-```text
-JeevanCareBot is a post-discharge companion for patients.
-After discharge, it supports patients in their language (Tamil, Hindi, English) for 7 days with:
-- daily symptom check-ins
-- medication reminders
-- simple answers to recovery questions
-- danger-sign escalation guidance
-No app install needed. Works directly in Telegram.
-```
+## Contributing
 
-### Commands (for /setcommands)
+This is a personal project I'm sharing with the community. Contributions are welcome!
 
-```text
-start - Start bot and view guidance
-help - Show all commands
-startcare - Start 7-day discharge follow-up
-stopcare - Stop 7-day follow-up
-setcheckin - Set daily check-in time (HH:MM)
-setname - Save patient name
-setcondition - Save patient condition
-setday - Save day after discharge
-setmeds - Save medication schedule
-profile - Show current profile
-record - Show saved patient record
-```
+- 🍴 **Fork it** - Make your own version
+- 🔧 **Pull requests** - Improvements and fixes are appreciated
+- 📋 **Copy it** - Use the code however you want
+- ✨ **Enhance it** - Build something even better
+
+## License
+
+This project is released under the GNU General Public License v3.0. See [LICENSE](LICENSE) for details.

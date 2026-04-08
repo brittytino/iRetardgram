@@ -1,3 +1,27 @@
-node_modules/
-.env
-npm-debug.log*
+# Build outputs
+*.apk
+*.idsig
+artifacts/
+
+# Decompiled source (generated during patching)
+instagram_source/
+
+# Local signing material
+*.keystore
+*.jks
+
+# IDE
+*.iml
+.gradle
+/.idea
+.DS_Store
+
+# Android
+/local.properties
+/captures
+.externalNativeBuild
+.cxx
+
+# Python
+__pycache__/
+*.pyc
