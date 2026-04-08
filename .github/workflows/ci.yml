@@ -37,6 +37,22 @@ jobs:
           test -f patches/IRetardConfig.smali
           test -f patches/IRetardHooks.smali
 
+      - name: Reject UTF-8 BOM in smali patches
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          failed = False
+          for path in [Path("patches/IRetardConfig.smali"), Path("patches/IRetardHooks.smali")]:
+            data = path.read_bytes()
+            if data.startswith(b"\xef\xbb\xbf"):
+              print(f"BOM detected: {path}")
+              failed = True
+
+          if failed:
+            raise SystemExit(1)
+          PY
+
       - name: Reject mojibake artifacts
         run: |
           python - <<'PY'

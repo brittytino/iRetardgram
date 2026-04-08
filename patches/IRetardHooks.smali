@@ -1,4 +1,4 @@
-﻿.class public Lcom/iRetardgram/IRetardHooks;
+.class public Lcom/iRetardgram/IRetardHooks;
 .super Ljava/lang/Object;
 
 # iRetardgram Network Hooks

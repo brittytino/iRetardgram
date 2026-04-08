@@ -1,4 +1,4 @@
-﻿.class public Lcom/iRetardgram/IRetardConfig;
+.class public Lcom/iRetardgram/IRetardConfig;
 .super Ljava/lang/Object;
 
 # iRetardgram Configuration
