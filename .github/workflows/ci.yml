@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Python syntax check
+        run: |
+          python -m py_compile apply_network_patch.py
+          python -m py_compile apply_tab_redirection.py
+          python -m py_compile global_redirect.py
+          python -m py_compile patch_main.py
+
+      - name: Bash syntax check
+        run: |
+          bash -n patch.sh
+          bash -n cleanup.sh
+
+      - name: Verify critical patch files exist
+        run: |
+          test -f patches/IRetardConfig.smali
+          test -f patches/IRetardHooks.smali
+
+      - name: Reject mojibake artifacts
+        run: |
+          if grep -R --line-number --exclude=ci.yml "â" .; then
+            echo "Found broken encoding artifacts."
+            exit 1
+          fi

@@ -25,3 +25,11 @@ instagram_source/
 # Python
 __pycache__/
 *.pyc
+
+# Local environments and logs
+.venv/
+venv/
+*.log
+
+# VS Code
+.vscode/
