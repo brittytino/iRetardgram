@@ -131,26 +131,30 @@ adb install -r artifacts/iRetardgram_patched_<instagram_apk_name>_stories_enable
 
 The repository includes GitHub Actions release automation in `.github/workflows/release.yml`.
 
-Two fully automated paths are supported:
+This is fully automatic on tag push.
 
-1. Push tag (`v*`) with APK available at `apk/*.apk` in repo checkout.
-2. Manual `workflow_dispatch` with external `apk_url` (recommended for APKMirror).
+When you push a tag starting with `v` (for example `v1.0.3`), the workflow:
 
-### Workflow Dispatch (External URL)
+1. Downloads the latest Instagram APK automatically.
+2. Uses fallback sources if APKMirror fails.
+3. Builds two patched variants (`stories enabled` and `stories blocked`).
+4. Generates SHA256 files.
+5. Uploads all APK assets to the GitHub Release.
 
-Open Actions -> Release APK -> Run workflow and provide:
+Primary source:
 
-- `tag_name`: for example `v1.0.3`
-- `apk_url`: direct APK URL or APKMirror page URL
-  Example source page: `https://www.apkmirror.com/apk/instagram/instagram-instagram/`
-- `asset_name`: default `iretardgram.apk`
+- `https://www.apkmirror.com/apk/instagram/instagram-instagram/`
 
-The workflow resolves APKMirror links, downloads APK in CI, computes SHA256, and uploads both files into GitHub Release assets.
+Fallback sources:
 
-### CLI Alternative
+- APKPure direct endpoint
+- Uptodown download endpoint
 
-```powershell
-./scripts/publish-release.ps1 -Tag v1.0.3 -ApkPath .\apk\instagram.apk
+Tag release command:
+
+```bash
+git tag v1.0.3
+git push origin v1.0.3
 ```
 
 ## File Structure

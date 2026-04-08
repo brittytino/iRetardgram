@@ -25,6 +25,7 @@ jobs:
           python -m py_compile apply_tab_redirection.py
           python -m py_compile global_redirect.py
           python -m py_compile patch_main.py
+          python -m py_compile scripts/download_instagram_apk.py
 
       - name: Bash syntax check
         run: |
