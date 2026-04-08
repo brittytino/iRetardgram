@@ -5,6 +5,26 @@ on:
     tags:
       - "v*"
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Release tag (e.g. v1.0.3)"
+        required: true
+        type: string
+      apk_url:
+        description: "Direct APK URL or APKMirror page URL"
+        required: false
+        default: "https://www.apkmirror.com/apk/instagram/instagram-instagram/"
+        type: string
+      asset_name:
+        description: "Uploaded APK filename"
+        required: false
+        default: "iretardgram.apk"
+        type: string
+      release_name:
+        description: "Optional release title"
+        required: false
+        default: ""
+        type: string
 
 permissions:
   contents: write
@@ -17,23 +37,156 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Resolve release metadata
+        id: meta
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG_NAME="${{ inputs.tag_name }}"
+            RELEASE_NAME="${{ inputs.release_name }}"
+            if [ -z "$RELEASE_NAME" ]; then
+              RELEASE_NAME="$TAG_NAME"
+            fi
+            APK_URL="${{ inputs.apk_url }}"
+            ASSET_NAME="${{ inputs.asset_name }}"
+          else
+            TAG_NAME="${{ github.ref_name }}"
+            RELEASE_NAME="${{ github.ref_name }}"
+            APK_URL=""
+            ASSET_NAME="iretardgram.apk"
+          fi
+
+          echo "tag_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
+          echo "release_name=$RELEASE_NAME" >> "$GITHUB_OUTPUT"
+          echo "apk_url=$APK_URL" >> "$GITHUB_OUTPUT"
+          echo "asset_name=$ASSET_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Download APK from URL input
+        if: steps.meta.outputs.apk_url != ''
+        env:
+          APK_URL: ${{ steps.meta.outputs.apk_url }}
+          ASSET_NAME: ${{ steps.meta.outputs.asset_name }}
+        run: |
+          mkdir -p release_assets
+
+          RESOLVED_URL=$(python - <<'PY'
+          import html
+          import os
+          import re
+          import sys
+          import urllib.parse
+          import urllib.request
+
+          start_url = os.environ["APK_URL"].strip()
+          user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36"
+
+          def fetch(url: str) -> str:
+              req = urllib.request.Request(url, headers={"User-Agent": user_agent})
+              with urllib.request.urlopen(req, timeout=40) as resp:
+                  return resp.read().decode("utf-8", errors="ignore")
+
+          def is_candidate(u: str) -> bool:
+              return u.endswith(".apk") or "download.php" in u
+
+          if is_candidate(start_url):
+              print(start_url)
+              raise SystemExit(0)
+
+          queue = [start_url]
+          visited = set()
+          candidates = []
+
+          for _ in range(3):
+              next_queue = []
+              for page_url in queue:
+                  if page_url in visited:
+                      continue
+                  visited.add(page_url)
+
+                  try:
+                      page = fetch(page_url)
+                  except Exception:
+                      continue
+
+                  for href in re.findall(r'href=["\']([^"\']+)["\']', page, flags=re.IGNORECASE):
+                      href = html.unescape(href)
+                      full = urllib.parse.urljoin(page_url, href)
+
+                      if is_candidate(full):
+                          candidates.append(full)
+                          continue
+
+                      if "apkmirror.com" in full and (
+                          "/apk/instagram/instagram-instagram/" in full
+                          or "-android-apk-download/" in full
+                          or "-release/" in full
+                      ):
+                          next_queue.append(full)
+
+              queue = next_queue[:40]
+
+          if not candidates:
+              print("", end="")
+              raise SystemExit(0)
+
+          unique = list(dict.fromkeys(candidates))
+
+          def score(u: str):
+              s = 0
+              if u.endswith(".apk"):
+                  s += 100
+              if "download.php" in u:
+                  s += 80
+              if "key=" in u:
+                  s += 10
+              if "forcebaseapk" in u:
+                  s += 5
+              return (-s, len(u))
+
+          best = sorted(unique, key=score)[0]
+          print(best)
+          PY
+          )
+
+          if [ -z "$RESOLVED_URL" ]; then
+            echo "Failed to resolve downloadable APK URL from: $APK_URL"
+            echo "Tip: provide a direct APKMirror download URL (download.php... or .apk)."
+            exit 1
+          fi
+
+          echo "Resolved download URL: $RESOLVED_URL"
+          curl -fL --retry 3 \
+            -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36" \
+            -e "$APK_URL" \
+            "$RESOLVED_URL" \
+            -o "release_assets/$ASSET_NAME"
+
       - name: Prepare optional release assets
         run: |
           mkdir -p release_assets
 
-          if compgen -G "apk/*.apk" > /dev/null; then
+          if [ -f "release_assets/${{ steps.meta.outputs.asset_name }}" ]; then
+            echo "URL-provided APK already downloaded."
+          elif compgen -G "apk/*.apk" > /dev/null; then
             cp apk/*.apk release_assets/
           fi
 
-          if [ -f release_assets/instagram.apk ]; then
-            sha256sum release_assets/instagram.apk > release_assets/instagram.apk.sha256
+          for apk in release_assets/*.apk; do
+            [ -f "$apk" ] || continue
+            sha256sum "$apk" > "$apk.sha256"
+          done
+
+          if ! compgen -G "release_assets/*.apk" > /dev/null; then
+            echo "No APK found. Provide workflow input 'apk_url' or place an APK in apk/*.apk before tagging."
+            exit 1
           fi
 
-          ls -la release_assets || true
+          ls -la release_assets
 
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.meta.outputs.tag_name }}
+          name: ${{ steps.meta.outputs.release_name }}
           generate_release_notes: true
           fail_on_unmatched_files: false
           files: |
