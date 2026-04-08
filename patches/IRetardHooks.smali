@@ -8,6 +8,7 @@
 #   - /feed/timeline/ (home feed posts - Stories load from /feed/reels_tray/ separately)
 #   - /discover/topical_explore (explore content)
 #   - /clips/discover (reels discovery)
+#   - /blend and /blends (Blend surfaces and blend-driven endless reels/feed)
 #   - /logging/ (client event logging)
 #   - /async_ads_privacy/ (ad tracking)
 #   - /async_critical_notices/ (engagement nudge analytics)
@@ -121,6 +122,17 @@
 
     # Block reels discovery
     const-string v1, "/clips/discover"
+    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    move-result v2
+    if-nez v2, :cond_block
+
+    # Block Blend surfaces (includes person/group blend reels/feed)
+    const-string v1, "/blend"
+    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    move-result v2
+    if-nez v2, :cond_block
+
+    const-string v1, "/blends"
     invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
     move-result v2
     if-nez v2, :cond_block

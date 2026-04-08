@@ -240,6 +240,7 @@ Hooks into `TigonServiceLayer` (a named, non-obfuscated class). Before each requ
 | `/feed/timeline/` | Home feed posts |
 | `/discover/topical_explore` | Explore tab content |
 | `/clips/discover` | Reels discovery feed |
+| `/blend`, `/blends` | Blend-based reels/feed endless scroll surfaces |
 | `/logging/` | Client event logging |
 | `/async_ads_privacy/` | Ad-related tracking |
 | `/async_critical_notices/` | Engagement nudge analytics |
