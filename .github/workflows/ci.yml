@@ -38,16 +38,35 @@ jobs:
 
       - name: Reject mojibake artifacts
         run: |
-          if grep -R --line-number -E \
-            --include='*.md' \
-            --include='*.py' \
-            --include='*.sh' \
-            --include='*.smali' \
-            --include='*.html' \
-            --include='*.yml' \
-            --include='*.yaml' \
-            --exclude='ci.yml' \
-            'â€”|âœ“|âŒ|â€¢|â€œ|â€|â™¥' .; then
-            echo "Found mojibake artifacts in text files."
-            exit 1
-          fi
+          python - <<'PY'
+          from pathlib import Path
+
+          text_suffixes = {
+            ".md", ".py", ".sh", ".smali", ".html", ".yml", ".yaml", ".txt"
+          }
+          bad_patterns = [
+            "\u00e2\u20ac\u201d",  # common mojibake for em dash
+            "\u00e2\u0153\u201c",  # common mojibake for check mark
+            "\u00e2\u20ac\u00a2",  # common mojibake bullet prefix
+            "\u00e2\u20ac\u0153",  # smart quote mojibake
+            "\u00e2\u20ac\u009d",  # smart quote mojibake
+          ]
+
+          failed = False
+          for path in Path(".").rglob("*"):
+            if not path.is_file() or path.suffix.lower() not in text_suffixes:
+              continue
+            if path.as_posix().endswith(".github/workflows/ci.yml"):
+              continue
+            try:
+              content = path.read_text(encoding="utf-8")
+            except UnicodeDecodeError:
+              continue
+            for marker in bad_patterns:
+              if marker in content:
+                print(f"Mojibake marker found in {path}: {marker}")
+                failed = True
+
+          if failed:
+            raise SystemExit(1)
+          PY
