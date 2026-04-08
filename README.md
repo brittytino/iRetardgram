@@ -15,6 +15,11 @@
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/github/downloads/brittytino/iRetardgram/total?style=for-the-badge&label=Total%20Downloads&color=0a7ea4" alt="Total Downloads">
+  <img src="https://img.shields.io/github/downloads/brittytino/iRetardgram/latest/total?style=for-the-badge&label=Latest%20Release%20Downloads&color=0a7ea4" alt="Latest Release Downloads">
+</p>
+
+<p align="center">
   <a href="https://github.com/brittytino/iRetardgram/actions/workflows/ci.yml">
     <img src="https://img.shields.io/github/actions/workflow/status/brittytino/iRetardgram/ci.yml?branch=main&label=CI&style=flat" alt="CI">
   </a>
@@ -42,13 +47,17 @@
   <img src="docs/screen_3.png" alt="iRetardgram screenshot 3" width="240" />
 </p>
 
-An open source Instagram app for Android without distractions.
+An open-source Android patching project that removes high-distraction Instagram surfaces while preserving core communication features.
 
-This is not a passive fork mirror. This repository is an updated and advanced continuation maintained by TIno Britty J (brittytino).
+iRetardgram is actively maintained by TIno Britty J (brittytino) as an updated continuation of the original concept.
 
-Credits to original upstream owner and project:
+Credits to the original upstream project:
 
 - jean-voila - https://github.com/jean-voila/FeurStagram
+
+## Project Overview
+
+iRetardgram publishes signed release APKs through GitHub Actions and provides scripts for local patching and advanced customization.
 
 ## Community
 
@@ -58,9 +67,9 @@ Join the Discord server to get support, follow updates, and discuss development:
 
 ## Installation
 
-You have two options:
+Two usage options are available:
 
-1. Ready-to-install APK - Grab the latest APK from the Releases page and install it directly.
+1. Ready-to-install APK - Download from Releases and install directly.
 2. DIY patching - Use the toolkit below to patch any Instagram version yourself.
 
 ## What Gets Disabled
@@ -127,11 +136,9 @@ adb install -r artifacts/iRetardgram_patched_<instagram_apk_name>_stories_enable
 ./cleanup.sh
 ```
 
-## Release APK With New Tag
+## Automated Release Pipeline
 
-The repository includes GitHub Actions release automation in `.github/workflows/release.yml`.
-
-This is fully automatic on tag push.
+The repository includes a fully automated GitHub Actions release workflow in `.github/workflows/release.yml`.
 
 When you push a tag starting with `v` (for example `v1.0.3`), the workflow:
 
@@ -150,7 +157,7 @@ Fallback sources:
 - APKPure direct endpoint
 - Uptodown download endpoint
 
-Tag release command:
+Release trigger command:
 
 ```bash
 git tag v1.0.3
@@ -204,7 +211,7 @@ keytool -genkey -v -keystore iRetardgram.keystore -alias iRetardgram \
 | Algorithm | RSA 2048-bit |
 | Validity | 10,000 days |
 
-Note: If you reinstall the app, you must use the same keystore to preserve your data. Signing with a different keystore requires uninstalling the previous version first.
+Note: To preserve app data across updates, always sign with the same keystore. Changing keystore requires uninstalling the previous build.
 
 ## Debugging
 
@@ -244,12 +251,12 @@ Matching uses `String.contains()` on the URI path. Instagram changes URL shapes 
 ## Updating for New Instagram Versions
 
 1. `TigonServiceLayer` is a named class and typically remains stable.
-2. Apply the same patches.
-3. Publish an updated APK release tag.
+2. Apply the same patch flow.
+3. Push a new release tag.
 
 ## iRetard Chrome Extension
 
-iRetard is a strict local-only Manifest V3 Chrome extension for Instagram discipline.
+iRetard is a strict local-only Manifest V3 Chrome extension for disciplined Instagram usage.
 
 - No popup override controls
 - Daily Instagram budget fixed to 30 minutes
