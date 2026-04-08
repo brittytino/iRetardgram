@@ -98,13 +98,17 @@
 # Main hook: Throws IOException if request should be blocked
 # Called from TigonServiceLayer before each network request
 .method public static throwIfBlocked(Ljava/net/URI;)V
-    .locals 4
+    .locals 5
 
     # Log the request (comment out for production)
     invoke-static {p0}, Lcom/iRetardgram/IRetardHooks;->logRequest(Ljava/net/URI;)V
 
     invoke-virtual {p0}, Ljava/net/URI;->getPath()Ljava/lang/String;
     move-result-object v0
+
+    # Also inspect full URI (path + query) for hidden blend/reels flags
+    invoke-virtual {p0}, Ljava/net/URI;->toString()Ljava/lang/String;
+    move-result-object v4
 
     if-eqz v0, :cond_return
 
@@ -150,6 +154,12 @@
     move-result v2
     if-nez v2, :cond_block
 
+    # Block broader clips API surface used by blend/reels endless recommendations
+    const-string v1, "/api/v1/clips/"
+    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    move-result v2
+    if-nez v2, :cond_block
+
     # Block Blend surfaces (includes person/group blend reels/feed)
     const-string v1, "/blend"
     invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
@@ -175,6 +185,27 @@
     # Block blend session lookup while preserving general DM threads/inbox
     const-string v1, "/api/v1/direct_v2/threads/get_by_participants/"
     invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    move-result v2
+    if-nez v2, :cond_block
+
+    # Full URI/query matching for blend routes hidden behind generic endpoints
+    const-string v1, "blend"
+    invoke-virtual {v4, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    move-result v2
+    if-nez v2, :cond_block
+
+    const-string v1, "multi_user"
+    invoke-virtual {v4, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    move-result v2
+    if-nez v2, :cond_block
+
+    const-string v1, "reels_media"
+    invoke-virtual {v4, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    move-result v2
+    if-nez v2, :cond_block
+
+    const-string v1, "get_by_participants"
+    invoke-virtual {v4, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
     move-result v2
     if-nez v2, :cond_block
 
