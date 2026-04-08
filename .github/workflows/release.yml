@@ -176,8 +176,11 @@ jobs:
           done
 
           if ! compgen -G "release_assets/*.apk" > /dev/null; then
-            echo "No APK found. Provide workflow input 'apk_url' or place an APK in apk/*.apk before tagging."
-            exit 1
+            if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+              echo "No APK found. Provide workflow input 'apk_url' or place an APK in apk/*.apk before running."
+              exit 1
+            fi
+            echo "No APK asset found for this tag push. Release will be created with source archives only."
           fi
 
           ls -la release_assets
