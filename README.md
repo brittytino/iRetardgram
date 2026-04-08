@@ -131,14 +131,31 @@ adb install -r artifacts/iRetardgram_patched_<instagram_apk_name>_stories_enable
 
 The repository includes GitHub Actions release automation in `.github/workflows/release.yml`.
 
-When you push a tag that starts with `v`, the workflow publishes a GitHub Release.
+When you push a tag that starts with `v`, the workflow publishes a GitHub Release object.
 
-For large APK files, upload the APK as a Release asset (do not commit APK binaries to git history).
+Why old repo had APK assets but yours does not:
 
-Example:
+- GitHub Actions runners can only upload files available in the repository checkout or files generated during the workflow run.
+- Your local `apk/instagram.apk` is ignored by git (`*.apk`) and not committed, so the runner cannot see it.
+- This is why the release currently has only source archives.
+
+Recommended automated flow (no APK in git history):
+
+1. Create/push a tag and release object.
+2. Upload local APK as a release asset from your machine using GitHub CLI.
+
+PowerShell helper script is included:
+
+```powershell
+./scripts/publish-release.ps1 -Tag v1.0.3 -ApkPath .\apk\instagram.apk
+```
+
+Manual equivalent:
 
 ```bash
-gh release upload v1.0.1 apk/instagram.apk --clobber
+git tag v1.0.3
+git push origin v1.0.3
+gh release upload v1.0.3 apk/instagram.apk --clobber
 ```
 
 ## File Structure
