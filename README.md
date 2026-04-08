@@ -240,13 +240,19 @@ Hooks into `TigonServiceLayer` (a named, non-obfuscated class). Before each requ
 | `/feed/timeline/` | Home feed posts |
 | `/discover/topical_explore` | Explore tab content |
 | `/clips/discover` | Reels discovery feed |
+| `/api/v1/clips/user/`, `/api/v1/clips/multi_user/` | Personalized and Blend aggregation reels feeds |
+| `/api/v1/feed/reels_media/` | Reels media stream endpoint |
 | `/blend`, `/blends` | Blend-based reels/feed endless scroll surfaces |
+| `/api/v1/qe/sync/`, `/api/v1/launcher/sync/` | Feature-flag and launcher rollouts that can enable Blend-like behavior |
+| `/api/v1/direct_v2/threads/get_by_participants/` | Blend session lookup inside DM context |
+| `/api/v1/reels/liked/`, `/api/v1/discover/explore/` | Reels/explore preference and recommendation signals |
 | `/logging/` | Client event logging |
 | `/async_ads_privacy/` | Ad-related tracking |
 | `/async_critical_notices/` | Engagement nudge analytics |
 | `/api/v1/media/.../seen/` (path contains `/api/v1/media/` and `/seen`) | Post seen tracking |
 | `/api/v1/fbupload/` | Telemetry upload |
 | `/api/v1/stats/` | Performance and usage stats |
+| `/api/v1/loom/`, `/api/v1/analytics/` | Internal tracing and analytics |
 | `/api/v1/commerce/`, `/api/v1/shopping/`, `/api/v1/sellable_items/` | Shopping and commerce preloads |
 
 Matching uses `String.contains()` on the URI path. Instagram changes URL shapes over time, so adjust `patches/IRetardHooks.smali` if a block stops matching.

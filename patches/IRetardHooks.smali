@@ -8,13 +8,19 @@
 #   - /feed/timeline/ (home feed posts - Stories load from /feed/reels_tray/ separately)
 #   - /discover/topical_explore (explore content)
 #   - /clips/discover (reels discovery)
+#   - /api/v1/clips/user/, /api/v1/clips/multi_user/ (reels and blend aggregation)
+#   - /api/v1/feed/reels_media/ (reels media stream)
 #   - /blend and /blends (Blend surfaces and blend-driven endless reels/feed)
+#   - /api/v1/qe/sync/, /api/v1/launcher/sync/ (feature flags / rollout)
+#   - /api/v1/direct_v2/threads/get_by_participants/ (blend session lookup)
+#   - /api/v1/reels/liked/, /api/v1/discover/explore (reels/explore ranking signals)
 #   - /logging/ (client event logging)
 #   - /async_ads_privacy/ (ad tracking)
 #   - /async_critical_notices/ (engagement nudge analytics)
 #   - /api/v1/media/.../seen/ ("seen" tracking for posts)
 #   - /api/v1/fbupload/ (telemetry upload)
 #   - /api/v1/stats/ (performance/usage stats)
+#   - /api/v1/loom/, /api/v1/analytics/ (internal tracing / analytics)
 #   - /api/v1/commerce/, /api/v1/shopping/, /api/v1/sellable_items/ (shopping preloads)
 #
 # Note: /clips/home/ is NOT blocked because the Reels tab is already
@@ -126,6 +132,24 @@
     move-result v2
     if-nez v2, :cond_block
 
+    # Block reels user feed
+    const-string v1, "/api/v1/clips/user/"
+    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    move-result v2
+    if-nez v2, :cond_block
+
+    # Block blend aggregation endpoint
+    const-string v1, "/api/v1/clips/multi_user/"
+    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    move-result v2
+    if-nez v2, :cond_block
+
+    # Block reels media stream
+    const-string v1, "/api/v1/feed/reels_media/"
+    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    move-result v2
+    if-nez v2, :cond_block
+
     # Block Blend surfaces (includes person/group blend reels/feed)
     const-string v1, "/blend"
     invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
@@ -133,6 +157,34 @@
     if-nez v2, :cond_block
 
     const-string v1, "/blends"
+    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    move-result v2
+    if-nez v2, :cond_block
+
+    # Block feature-flag sync that can re-enable blend-like experiences
+    const-string v1, "/api/v1/qe/sync/"
+    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    move-result v2
+    if-nez v2, :cond_block
+
+    const-string v1, "/api/v1/launcher/sync/"
+    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    move-result v2
+    if-nez v2, :cond_block
+
+    # Block blend session lookup while preserving general DM threads/inbox
+    const-string v1, "/api/v1/direct_v2/threads/get_by_participants/"
+    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    move-result v2
+    if-nez v2, :cond_block
+
+    # Block additional reels/explore preference signals
+    const-string v1, "/api/v1/reels/liked/"
+    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    move-result v2
+    if-nez v2, :cond_block
+
+    const-string v1, "/api/v1/discover/explore/"
     invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
     move-result v2
     if-nez v2, :cond_block
@@ -168,6 +220,17 @@
 
     # Performance / usage stats
     const-string v1, "/api/v1/stats/"
+    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    move-result v2
+    if-nez v2, :cond_block
+
+    # Internal tracing and analytics
+    const-string v1, "/api/v1/loom/"
+    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    move-result v2
+    if-nez v2, :cond_block
+
+    const-string v1, "/api/v1/analytics/"
     invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
     move-result v2
     if-nez v2, :cond_block
