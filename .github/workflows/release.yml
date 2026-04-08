@@ -37,7 +37,7 @@ jobs:
 
       - name: Generate temporary signing key
         run: |
-          KEYSTORE_PATH="$RUNNER_TEMP/iretardgram.keystore"
+          KEYSTORE_PATH="${{ runner.temp }}/iretardgram.keystore"
           keytool -genkeypair -v \
             -keystore "$KEYSTORE_PATH" \
             -alias iretardgram \
@@ -47,11 +47,10 @@ jobs:
             -storepass android \
             -keypass android \
             -dname "CN=iRetardgram, OU=iRetardgram, O=iRetardgram, L=Unknown, ST=Unknown, C=XX"
-          echo "KEYSTORE_PATH=$KEYSTORE_PATH" >> "$GITHUB_ENV"
 
       - name: Build patched APK variants
         env:
-          IRETARDGRAM_KEYSTORE: ${{ env.KEYSTORE_PATH }}
+          IRETARDGRAM_KEYSTORE: ${{ runner.temp }}/iretardgram.keystore
           IRETARDGRAM_KEYSTORE_PASS: android
           IRETARDGRAM_KEY_ALIAS: iretardgram
           IRETARDGRAM_KEY_PASS: android
