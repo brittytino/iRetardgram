@@ -38,7 +38,16 @@ jobs:
 
       - name: Reject mojibake artifacts
         run: |
-          if grep -R --line-number --exclude=ci.yml $'\xC3\xA2' .; then
-            echo "Found broken encoding artifacts."
+          if grep -R --line-number -E \
+            --include='*.md' \
+            --include='*.py' \
+            --include='*.sh' \
+            --include='*.smali' \
+            --include='*.html' \
+            --include='*.yml' \
+            --include='*.yaml' \
+            --exclude='ci.yml' \
+            'â€”|âœ“|âŒ|â€¢|â€œ|â€|â™¥' .; then
+            echo "Found mojibake artifacts in text files."
             exit 1
           fi
