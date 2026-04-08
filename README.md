@@ -3,20 +3,18 @@
 </p>
 
 <h1 align="center">iRetardgram</h1>
-<p align="center">Distraction-Free Instagram</p>
+<p align="center">A focused Instagram experience for Android</p>
 
 <p align="center">
   <a href="https://github.com/brittytino/iRetardgram/releases/latest">
-    <img src="https://img.shields.io/github/v/release/brittytino/iRetardgram?style=for-the-badge&label=Download%20APK&color=10a37f" alt="Download APK">
+    <img src="https://img.shields.io/github/v/release/brittytino/iRetardgram?style=for-the-badge&label=Latest%20Release&color=10a37f" alt="Latest Release">
+  </a>
+  <a href="https://img.shields.io/github/downloads/brittytino/iRetardgram/total?style=for-the-badge&label=Total%20Downloads&color=0a7ea4">
+    <img src="https://img.shields.io/github/downloads/brittytino/iRetardgram/total?style=for-the-badge&label=Total%20Downloads&color=0a7ea4" alt="Total Downloads">
   </a>
   <a href="https://discord.gg/Z9QvMw8s76">
     <img src="https://img.shields.io/badge/Discord-Join%20Server-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join Discord">
   </a>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/github/downloads/brittytino/iRetardgram/total?style=for-the-badge&label=Total%20Downloads&color=0a7ea4" alt="Total Downloads">
-  <img src="https://img.shields.io/github/downloads/brittytino/iRetardgram/latest/total?style=for-the-badge&label=Latest%20Release%20Downloads&color=0a7ea4" alt="Latest Release Downloads">
 </p>
 
 <p align="center">
@@ -47,32 +45,27 @@
   <img src="docs/screen_3.png" alt="iRetardgram screenshot 3" width="240" />
 </p>
 
-An open-source Android patching project that removes high-distraction Instagram surfaces while preserving core communication features.
+iRetardgram is an open-source Android patching toolkit that removes high-distraction Instagram surfaces while preserving core communication features.
 
-iRetardgram is actively maintained by TIno Britty J (brittytino) as an updated continuation of the original concept.
+This project is actively maintained by TIno Britty J (brittytino) and builds on the original FeurStagram concept.
 
-Credits to the original upstream project:
+Credits to upstream: https://github.com/jean-voila/FeurStagram
 
-- jean-voila - https://github.com/jean-voila/FeurStagram
+## Why iRetardgram
 
-## Project Overview
+- Predictable, scriptable patching workflow
+- Signed release APKs published through GitHub Actions
+- Automatic tag-based build and release pipeline
+- Fallback APK sources when primary download fails
 
-iRetardgram publishes signed release APKs through GitHub Actions and provides scripts for local patching and advanced customization.
+## Download
 
-## Community
+1. Open the latest release: https://github.com/brittytino/iRetardgram/releases/latest
+2. Download one of the APK variants:
+- stories enabled
+- stories blocked
 
-Join the Discord server to get support, follow updates, and discuss development:
-
-- https://discord.gg/Z9QvMw8s76
-
-## Installation
-
-Two usage options are available:
-
-1. Ready-to-install APK - Download from Releases and install directly.
-2. DIY patching - Use the toolkit below to patch any Instagram version yourself.
-
-## What Gets Disabled
+## What It Disables
 
 | Feature | Status | How |
 |---------|--------|-----|
@@ -93,6 +86,10 @@ Two usage options are available:
 | Search | Works |
 | Notifications | Works |
 
+## Community
+
+Join the Discord server: https://discord.gg/Z9QvMw8s76
+
 ## Requirements
 
 ### Linux
@@ -107,6 +104,10 @@ sudo apt install apktool android-sdk-build-tools openjdk-17-jdk python3
 brew install apktool android-commandlinetools openjdk python3
 sdkmanager "build-tools;34.0.0"
 ```
+
+### Windows
+
+Use WSL2 (Ubuntu recommended) and install the Linux requirements inside WSL.
 
 ## Quick Start
 
@@ -164,15 +165,16 @@ git tag v1.0.3
 git push origin v1.0.3
 ```
 
-## File Structure
+## Core Structure
 
 ```text
 iRetardgram/
 |- patch.sh                 # Main patching script
 |- cleanup.sh               # Removes build artifacts
 |- apply_network_patch.py   # Network hook patch logic
-|- artifacts/               # Patched APK output directory
-|- apk/                     # Release APK input (instagram.apk)
+|- global_redirect.py       # Global tab redirection patch
+|- artifacts/               # Build outputs
+|- scripts/                 # Helper automation scripts
 `- patches/
    |- IRetardConfig.smali   # Configuration class
    `- IRetardHooks.smali    # Network blocking hooks
@@ -231,7 +233,7 @@ Intercepts fragment loading in the main tab host. When Instagram tries to load `
 
 Hooks into `TigonServiceLayer` (a named, non-obfuscated class). Before each request, `IRetardHooks.throwIfBlocked()` runs on the request URI. Blocked calls fail with an `IOException` so the stack unwinds cleanly.
 
-### Blocked network paths
+### Blocked Network Paths
 
 | Path or pattern | Purpose |
 |-----------------|---------|
